@@ -3,8 +3,8 @@ import tqdm #module that wraps status bars
 
 
 class MoCoTrainer():
-    def __init__(self,dl_train,dl_val,model,loss_fn,optimizer,scheduler,tau,epochs,queue,momento,flg,device):
-        super(self,MoCoTrainer).__init__()
+    def __init__(self,model,loss_fn,optimizer,scheduler,tau,queue,momento,flg,device):
+        super(MoCoTrainer,self).__init__()
 
 
         self.model= model
@@ -53,17 +53,23 @@ class MoCoTrainer():
             val_loss.append(avg_loss)
 
     def train_batch(self,batch):
-        batch= batch.to(device= self.device)
-        labels= torch.zeros(batch.shape).to(device= self.device)
+        (x_k,x_q),gt_labels= batch
+
+        batch_size,_,_,_= x_k.shape
+        x_q= x_q.to(device= self.device)
+        x_k= x_k.to(device= self.device)
+        gt_labels= gt_labels.to(device= self.device)
+
+        contrastive_labels= torch.zeros(batch_size,dtype=torch.long).to(device= self.device)
 
         self.optimizer.zero_grad()
 
         #Forward Pass
-        logits,keys= self.model(batch,self.queue)#TODO:try adding method in model and see if need to call forward
+        logits,keys= self.model(x_k,x_q,self.queue)#TODO:try adding method in model and see if need to call forward
 
         #calculate Loss
-        loss= self.loss_fn(logits/self.tau,labels)
-
+        loss= self.loss_fn(logits/self.tau,contrastive_labels)
+        loss.requires_grad= True
         #backward Pass
         loss.backward()
         self.optimizer.step()
@@ -96,8 +102,8 @@ class MoCoTrainer():
     @staticmethod
     def UpdateQueue(queue,keys):
 
-        N,C= keys.shape()
+        N,C= keys.shape
         ''' ========  Enqueue/Dequeue  ======== '''
-        queue= torch.cat((queue,keys.view()),dim=1) #TODO:DEBUG THE FUCK OUT OF THIS PART
-        queue= queue[N:,:]
+        queue= torch.cat((queue,keys.t()),dim=1) #TODO:DEBUG THE FUCK OUT OF THIS PART
+        queue= queue[:,N:]
         return queue
