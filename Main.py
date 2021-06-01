@@ -6,7 +6,7 @@ import torchvision.models as models
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print(f'Working with {device}, number of GPUs: {torch.cuda.device_count()}')
+# print(f'Working with {device}, number of GPUs: {torch.cuda.device_count()}')
 
 def model_pipeline():
     '''Phase A - train Momentum Encoder'''
@@ -18,7 +18,7 @@ def model_pipeline():
     momentum= 0.999
     lr= 1e-3
     queue_size= 4096
-    batch_size= 256
+    batch_size= 64
     epochs= 200
 
     image_size = 224

@@ -9,7 +9,7 @@ class MoCo(nn.Module):
         self.query_encoder= backbone
         self.m= m
         self.queue= queue
-
+        self.queue_ptr= 0
     def forward(self, x_k,x_q):
         ''' Augment x twice -> pass through k/q networks -> '''
 
@@ -55,8 +55,8 @@ class MoCo(nn.Module):
     def _UpdateQueue(self,keys):
         N, C = keys.shape
         ''' ========  Enqueue/Dequeue  ======== '''
-        self.queue = torch.cat((self.queue, keys.t()), dim=1)  # TODO:DEBUG THE FUCK OUT OF THIS PART
-        self.queue = self.queue[:, N:]
+        self.queue[:, self.queue_ptr:self.queue_ptr + N] = keys.T
+        self.queue_ptr = self.queue_ptr + N # move pointer
 
 class DownStreamTaskModel(nn.Module):
     def __init__(self,encoder):
