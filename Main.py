@@ -12,13 +12,14 @@ def model_pipeline():
     '''Phase A - train Momentum Encoder'''
 
     #HyperParameters
-    backbone= models.resnet50(pretrained= True)
+    backbone= models.resnet50(num_classes= 128)
+
     tau= 0.07
     momentum= 0.999
     lr= 1e-3
     queue_size= 4096
     batch_size= 256
-    epochs= 100
+    epochs= 200
 
     image_size = 224
     ks = (int(0.1 * image_size) // 2) * 2 + 1  # should be odd
@@ -26,14 +27,14 @@ def model_pipeline():
                         'std': [0.229, 0.224, 0.225]}
 
     #define initial queue
-    queue= torch.zeros(1000,queue_size) #TODO:update
+    queue= torch.zeros(128,queue_size).to(device=device) #TODO:update
 
 
     #main model training
     dl_train,dl_val,transforms= DataModule(batch_size= batch_size,ks=ks,imagenet_stats=__imagenet_stats)
-    moco_model= MoCo(backbone= backbone,transforms=transforms)
+    moco_model= MoCo(backbone= backbone).to(device=device)
     optimizer= torch.optim.SGD(params=moco_model.parameters(),lr=lr,weight_decay=1e-4)
-    lr_schedualer = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[160, 240, 320], gamma=0.5)
+    lr_schedualer = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[120, 160], gamma=0.1)
     loss_fn= torch.nn.CrossEntropyLoss()
 
     trainer= MoCoTrainer(model= moco_model, loss_fn=loss_fn,optimizer=optimizer,scheduler=lr_schedualer,tau=tau,
