@@ -3,7 +3,7 @@ import tqdm #module that wraps status bars
 import os
 
 class MoCoTrainer():
-    def __init__(self,model,loss_fn,optimizer,scheduler,tau,queue,momento,flg,device):
+    def __init__(self,model,loss_fn,optimizer,scheduler,tau,flg,device):
         super(MoCoTrainer,self).__init__()
 
 
@@ -11,10 +11,10 @@ class MoCoTrainer():
         self.optimizer= optimizer
         self.scheduler= scheduler
         self.device= device
-        self.queue= queue
+
         self.loss_fn= loss_fn
         self.tau= tau
-        self.momento= momento
+
 
 
     def fit(self,dl_train,dl_val,epochs):
@@ -71,7 +71,7 @@ class MoCoTrainer():
         self.optimizer.zero_grad()
 
         #Forward Pass
-        logits,keys= self.model(x_k=x_k,x_q=x_q,queue= self.queue)#TODO:try adding method in model and see if need to call forward
+        logits,keys= self.model(x_k=x_k,x_q=x_q)#TODO:try adding method in model and see if need to call forward
         contrastive_labels= torch.zeros(logits.shape[0], dtype=torch.long).to(device=self.device)
 
         #calculate Loss
@@ -81,11 +81,6 @@ class MoCoTrainer():
         loss.backward()
         self.optimizer.step()
 
-        #Momentum Encoder
-        self._momentum_contrast_update()
-
-        #Update queue
-        self.queue= self.UpdateQueue(self.queue,keys) #TODO: implement
         torch.cuda.empty_cache()
 
         return loss.item() #takes torch tensor and outpots the scalar
@@ -104,32 +99,13 @@ class MoCoTrainer():
 
         # Forward Pass
         with torch.no_grad():
-            logits, keys = self.model(x_k=x_k, x_q=x_q, queue= self.queue)  # TODO:try adding method in model and see if need to call forward
+            logits, keys = self.model(x_k=x_k, x_q=x_q)  # TODO:try adding method in model and see if need to call forward
 
         # calculate Loss
         loss= self.loss_fn(logits/self.tau,contrastive_labels)
 
         return loss.item()
 
-    @staticmethod
-    def UpdateQueue(queue,keys):
 
-        N,C= keys.shape
-        ''' ========  Enqueue/Dequeue  ======== '''
-        queue= torch.cat((queue,keys.t()),dim=1) #TODO:DEBUG THE FUCK OUT OF THIS PART
-        queue= queue[:,N:]
-        return queue
 
-    def _momentum_contrast_update(self):
-        for theta_q, theta_k in zip(self.model.query_encoder.parameters(),self.model.keys_encoder.parameters()):  # TODO:vectorize
 
-            c= theta_k.data.sum()
-            # print(c)
-            a= (1. - self.momento) * theta_q.data
-            b= self.momento * theta_k.data
-            # print(a.sum())
-            # print(b.sum())
-            theta_k.data = theta_k.data * self.momento  +  theta_q.data * (1. - self.momento)
-            # print(theta_k.data.sum())
-            # if c!= a.sum()+b.sum():
-            #     p=[]
