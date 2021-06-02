@@ -33,7 +33,7 @@ def model_pipeline():
     #main model training
     dl_train,dl_val,transforms= DataModule(batch_size= batch_size,ks=ks,imagenet_stats=__imagenet_stats)
     moco_model= MoCo(backbone= backbone,m=momentum,queue=queue).to(device=device)
-    optimizer= torch.optim.SGD(params=moco_model.parameters(),lr=lr,weight_decay=1e-4)
+    optimizer= torch.optim.SGD(params=moco_model.parameters(),lr=lr,weight_decay=1e-4,momentum=0.9)
     lr_schedualer = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[120, 160], gamma=0.1)
     loss_fn= torch.nn.CrossEntropyLoss()
 

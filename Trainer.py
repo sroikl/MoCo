@@ -55,6 +55,7 @@ class MoCoTrainer():
             avg_loss = sum(epoch_val_loss) / num_val_batches
             pbar.set_description(f'Epoch Val Loss {avg_loss:.3f}')
             val_loss.append(avg_loss)
+            self.scheduler.step()
 
             if epoch%10==0:
                 torch.save(self.model.state_dict(),f'{os.getcwd()}/Model_Weights.pt')
@@ -99,7 +100,7 @@ class MoCoTrainer():
 
         # Forward Pass
         with torch.no_grad():
-            logits, keys = self.model(x_k=x_k, x_q=x_q)  # TODO:try adding method in model and see if need to call forward
+            logits, keys = self.model(x_k=x_k, x_q=x_q,Train=False)  # TODO:try adding method in model and see if need to call forward
 
         # calculate Loss
         loss= self.loss_fn(logits/self.tau,contrastive_labels)
