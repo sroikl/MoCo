@@ -8,10 +8,13 @@ class MoCo(nn.Module):
         self.keys_encoder= backbone #todo: change backbone
         self.query_encoder= backbone
         self.m= m
-        self.queue_ptr= 0
-        _,self.queue_size= self.queue.shape
-        self.queue = nn.functional.normalize(self.queue, dim=0)
 
+        ''' Queue Initialization'''
+        self.queue_ptr= 0
+        _,self.queue_size= queue.shape
+        self.queue = nn.functional.normalize(queue, dim=0)
+
+        '''Initializing the Keys Encoder and SG'''
         for param_q, param_k in zip(self.query_encoder.parameters(), self.keys_encoder.parameters()):
             param_k.data.copy_(param_q.data)  # initialize
             param_k.requires_grad = False  # not update by gradient
@@ -36,7 +39,8 @@ class MoCo(nn.Module):
         l_pos= torch.bmm(q.view(N,1,C),k.view(N,C,1)).squeeze(-1) #dim (Nx1)
         l_neg= torch.mm(q.view(N,C),self.queue.clone().detach().view(C,K)) #dim (NxK)
 
-        logits= torch.cat((l_pos,l_neg),dim=1) #dim (Nx(K+1))
+
+        logits = torch.cat([l_pos, l_neg], dim=1)
 
         if Train:
             self._UpdateQueue(keys=k)
@@ -47,16 +51,8 @@ class MoCo(nn.Module):
         for theta_q, theta_k in zip(self.query_encoder.parameters(),
                                     self.keys_encoder.parameters()):  # TODO:vectorize
 
-            c = theta_k.data.sum()
-            # print(c)
-            a = (1. - self.m) * theta_q.data
-            b = self.m * theta_k.data
-            # print(a.sum())
-            # print(b.sum())
             theta_k.data = theta_k.data * self.m + theta_q.data * (1. - self.m)
-            # print(theta_k.data.sum())
-            # if c!= a.sum()+b.sum():
-            #     p=[]
+
 
     def _UpdateQueue(self,keys):
         N, C = keys.shape
