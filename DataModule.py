@@ -5,6 +5,8 @@ import hashlib
 import torchvision
 import torch
 from torchvision.transforms import transforms
+import random
+from PIL import ImageFilter
 
 def DataModule(batch_size,ks,imagenet_stats):
 
@@ -40,14 +42,17 @@ def DataModule(batch_size,ks,imagenet_stats):
         tar.extractall(path=data_path)
 
 
-    train_transform = TwoCropsTransform(transforms.Compose([transforms.RandomResizedCrop(scale=(0.2, 1), size=224),
-                                                            transforms.RandomHorizontalFlip(),
-                                                            transforms.RandomApply(
-                                                                [transforms.ColorJitter(0.8, 0.8, 0.8, 0.2)], p=0.8),
-                                                            transforms.RandomGrayscale(p=0.2),
-                                                            # transforms.GaussianBlur(kernel_size=ks),
-                                                            transforms.ToTensor(),
-                                                            transforms.Normalize(**imagenet_stats)]))
+    train_transform = TwoCropsTransform(transforms.Compose([
+            transforms.RandomResizedCrop(224, scale=(0.2, 1.)),
+            transforms.RandomApply([
+                transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)  # not strengthened
+            ], p=0.8),
+            transforms.RandomGrayscale(p=0.2),
+            transforms.RandomApply([GaussianBlur([.1, 2.])], p=0.5),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize(**imagenet_stats)
+        ]))
 
     dataset_train = torchvision.datasets.ImageFolder(os.path.join(dataset_folderpath, 'train'), train_transform)
     dataset_validation = torchvision.datasets.ImageFolder(os.path.join(dataset_folderpath, 'val'), train_transform)
@@ -84,3 +89,14 @@ class TwoCropsTransform:
         format_string += self.base_transform.__repr__().replace('\n', '\n\t')
         format_string += '\n)'
         return format_string
+
+class GaussianBlur(object):
+    """Gaussian blur augmentation in SimCLR https://arxiv.org/abs/2002.05709"""
+
+    def __init__(self, sigma=[.1, 2.]):
+        self.sigma = sigma
+
+    def __call__(self, x):
+        sigma = random.uniform(self.sigma[0], self.sigma[1])
+        x = x.filter(ImageFilter.GaussianBlur(radius=sigma))
+        return x

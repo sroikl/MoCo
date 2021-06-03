@@ -1,12 +1,12 @@
 import torch
 from torch import  nn
-
+from Models import resnet50
 class MoCo(nn.Module):
     def __init__(self,backbone,m,queue):
         super(MoCo,self).__init__()
 
-        self.keys_encoder= backbone #todo: change backbone
-        self.query_encoder= backbone
+        self.keys_encoder= resnet50(width= 128) #todo: change backbone
+        self.query_encoder= resnet50(width= 128)
         self.m= m
 
         ''' Queue Initialization'''
@@ -32,6 +32,7 @@ class MoCo(nn.Module):
             k= self.keys_encoder(x_k)
             k = nn.functional.normalize(k, dim=1)
             k= k.detach()
+
         N,C= k.shape#shape of input data (NxC)
         _,K= self.queue.shape
 
@@ -51,7 +52,7 @@ class MoCo(nn.Module):
 
     def _momentum_contrast_update(self):
         for theta_q, theta_k in zip(self.query_encoder.parameters(),
-                                    self.keys_encoder.parameters()):  # TODO:vectorize
+                                    self.keys_encoder.parameters()):
 
             theta_k.data = theta_k.data * self.m + theta_q.data * (1. - self.m)
 
@@ -59,7 +60,7 @@ class MoCo(nn.Module):
     def _UpdateQueue(self,keys):
         N, C = keys.shape
         ''' ========  Enqueue/Dequeue  ======== '''
-        self.queue = torch.cat((self.queue, keys.t()), dim=1)  # TODO:DEBUG THE FUCK OUT OF THIS PART
+        self.queue = torch.cat((self.queue, keys.t()), dim=1)
         self.queue = self.queue[:, N:]
 
 class DownStreamTaskModel(nn.Module):
