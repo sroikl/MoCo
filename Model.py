@@ -1,12 +1,12 @@
 import torch
 from torch import  nn
-from Models import resnet50
+import torchvision.models as models
 class MoCo(nn.Module):
-    def __init__(self,backbone,m,queue):
+    def __init__(self,m,queue):
         super(MoCo,self).__init__()
 
-        self.keys_encoder= resnet50(width= 128) #todo: change backbone
-        self.query_encoder= resnet50(width= 128)
+        self.keys_encoder= models.resnet50(num_classes=128)
+        self.query_encoder= models.resnet50(num_classes= 128)
         self.m= m
 
         ''' Queue Initialization'''
@@ -17,7 +17,7 @@ class MoCo(nn.Module):
         '''Initializing the Keys Encoder and SG'''
         for param_q, param_k in zip(self.query_encoder.parameters(), self.keys_encoder.parameters()):
             param_k.data.copy_(param_q.data)  # initialize
-            # param_k.requires_grad = False  # not update by gradient
+            param_k.requires_grad = False  # not update by gradient
 
     def forward(self, x_k,x_q,Train=True):
         ''' Augment x twice -> pass through k/q networks -> '''
