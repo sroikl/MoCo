@@ -16,7 +16,7 @@ def model_pipeline():
 
     tau= 0.07
     momentum= 0.999
-    lr= 1e-3
+    lr= 1e-4
     queue_size= 4096
     batch_size= 64
     epochs= 200

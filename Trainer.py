@@ -26,34 +26,31 @@ class MoCoTrainer():
 
             '''========================= Train Part ========================='''
             num_train_batches= len(dl_train.batch_sampler)
-
-            dl_iter= iter(dl_train)
+            self.model.train()
             with tqdm.tqdm(total= num_train_batches,desc=f'Train Epoch') as pbar:
-                for i in range(num_train_batches):
-                    batch= next(dl_iter)
+                for i,batch in enumerate(dl_train):
                     loss= self.train_batch(batch)
                     epoch_train_loss.append(loss)
                     pbar.set_description(f'Batch Train Loss: {loss:.3f}')
                     pbar.update()
 
             avg_loss= sum(epoch_train_loss)/num_train_batches
-            pbar.set_description(f'Epoch Train Loss {avg_loss:.3f}')
+            pbar.set_description(f'Final Epoch Train Loss {avg_loss:.3f}')
             train_loss.append(avg_loss)
 
             ''' ========================= Validation Part ========================='''
             num_val_batches = len(dl_val.batch_sampler)
 
-            dl_iter = iter(dl_val)
+            self.model.eval()
             with tqdm.tqdm(total=num_val_batches, desc=f'Val Epoch') as pbar:
-                for i in range(num_val_batches):
-                    batch = next(dl_iter)
+                for i,batch in enumerate(dl_val):
                     loss = self.val_batch(batch)
                     epoch_val_loss.append(loss)
                     pbar.set_description(f'Batch Val Loss: {loss:.3f}')
                     pbar.update()
 
             avg_loss = sum(epoch_val_loss) / num_val_batches
-            pbar.set_description(f'Epoch Val Loss {avg_loss:.3f}')
+            pbar.set_description(f'Final Epoch Val Loss {avg_loss:.3f}')
             val_loss.append(avg_loss)
             self.scheduler.step()
 
