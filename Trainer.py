@@ -1,47 +1,73 @@
 import torch
 import tqdm #module that wraps status bars
 import os
+from torch import nn
 
 class MoCoTrainer():
-    def __init__(self,model,loss_fn,optimizer,scheduler,tau,flg,device):
+
+    def __init__(self, Qencoder, Kencoder, Dqueue, loss_fn, optimizer, scheduler, tau, cMomentum, flg, device):
         super(MoCoTrainer,self).__init__()
 
+        # Encoder models:
+        self.QE = Qencoder
+        self.KE = Kencoder
+        # Dictionary queue:
+        self.Dqueue = Dqueue
+        self.queue_ptr = 0
+        # Optimization processors:
+        self.optimizer = optimizer
+        self.scheduler = scheduler
+        self.device = device
+        # Hyperparameters:
+        self.loss_fn = loss_fn
+        self.tau = tau # Contrastive loss temperament
+        self.momentum = cMomentum # Contrast update momentum
 
-        self.model= model
-        self.optimizer= optimizer
-        self.scheduler= scheduler
-        self.device= device
 
-        self.loss_fn= loss_fn
-        self.tau= tau
+    def train(self,dl_train,dl_val,epochs):
 
-
-
-    def fit(self,dl_train,dl_val,epochs):
-        train_loss,val_loss= [],[]
+        # Initialize general losses:
+        train_loss, val_loss = [], []
 
         for epoch in range(epochs):
-            print (f' =============================== Epoch {epoch +1}/{epochs} ===============================')
-            epoch_train_loss,epoch_val_loss= [],[]
 
-            '''========================= Train Part ========================='''
-            num_train_batches= len(dl_train.batch_sampler)
-            self.model.train()
-            with tqdm.tqdm(total= num_train_batches,desc=f'Train Epoch') as pbar:
+            print (f' ============= Epoch {epoch +1}/{epochs} =============')
+
+            # Initialize per-epoch train and val losses:
+            epoch_train_loss, epoch_val_loss = [], []
+
+            '''============= Training Set ============='''
+            num_train_batches = len(dl_train.batch_sampler)
+
+            # Set Query encoder to training mode:
+            self.QE.train()
+            # Set Keys encoder to evaluation mode:
+            # self.KE.eval()
+
+            # Train over the batches with progress-bar description:
+            with tqdm.tqdm(total= num_train_batches,desc=f'Training Epoch') as pbar:
                 for i,batch in enumerate(dl_train):
-                    loss= self.train_batch(batch)
+
+                    loss = self.train_batch(batch)
                     epoch_train_loss.append(loss)
-                    pbar.set_description(f'Batch Train Loss: {loss:.3f}')
+
+                    # Update progress bar:
+                    pbar.set_description(f'Batch Loss: {loss:.3f}')
                     pbar.update()
 
-            avg_loss= sum(epoch_train_loss)/num_train_batches
-            pbar.set_description(f'Final Epoch Train Loss {avg_loss:.3f}')
+            avg_loss = sum(epoch_train_loss)/num_train_batches
+            print(f'Average Epoch Training Loss {avg_loss:.3f}')
+
+            # Append current epoch loss:
             train_loss.append(avg_loss)
 
-            ''' ========================= Validation Part ========================='''
+            ''' ============= Validation Set ============='''
             num_val_batches = len(dl_val.batch_sampler)
 
-            self.model.eval()
+            # Set models to evaluation modes:
+            self.QE.eval()
+            self.KE.eval()
+
             with tqdm.tqdm(total=num_val_batches, desc=f'Val Epoch') as pbar:
                 for i,batch in enumerate(dl_val):
                     loss = self.val_batch(batch)
@@ -50,38 +76,95 @@ class MoCoTrainer():
                     pbar.update()
 
             avg_loss = sum(epoch_val_loss) / num_val_batches
-            pbar.set_description(f'Final Epoch Val Loss {avg_loss:.3f}')
+            print(f'Average Epoch Validation Loss {avg_loss:.3f}')
+
+            # Append current epoch loss (val):
             val_loss.append(avg_loss)
+
+            # Update lr scheduler:
             self.scheduler.step()
 
-            if epoch%10==0:
-                torch.save(self.model.state_dict(),f'{os.getcwd()}/Model_Weights.pt')
+            # Save model weights every 10 epochs:
+            if epoch % 10 == 0:
+                torch.save(self.QE.state_dict(),f'{os.getcwd()}/Model_Weights.pt')
 
-    def train_batch(self,batch):
-        (x_k,x_q),gt_labels= batch
+    def train_batch(self, batch):
 
-        batch_size,_,_,_= x_k.shape
-        x_q= x_q.to(device= self.device)
-        x_k= x_k.to(device= self.device)
-        gt_labels= gt_labels.to(device= self.device)
+        (Xk, Xq), gt_labels = batch
 
+        batch_size, _, _, _ = Xk.shape
+        Xq = Xq.to(device= self.device) # Query batch
+        Xk = Xk.to(device= self.device) # Positive keys batch
+        gt_labels = gt_labels.to(device= self.device) # No need for "gt" labels in this scheme
 
-        self.optimizer.zero_grad()
+        self.optimizer.zero_grad() # Set previous gradients to zero
 
-        #Forward Pass
-        logits,keys= self.model(x_k=x_k,x_q=x_q)#TODO:try adding method in model and see if need to call forward
-        contrastive_labels= torch.zeros(logits.shape[0], dtype=torch.long).to(device=self.device)
+        # Produce model outputs via forward pass:
+        queries = nn.functional.normalize(self.QE(Xq), p=2, dim=1)
+        keys = nn.functional.normalize(self.QE(Xk), p=2, dim=1)
 
-        #calculate Loss
-        loss= self.loss_fn(logits/self.tau,contrastive_labels)
+        # Calcualte positive-negative output multiplications:
+        N, C = keys.shape  # Shape of input data (NxC)
+        _, K = self.Dqueue.queue.shape # Dictionary queue length
+        l_pos = torch.bmm(queries.view(N, 1, C), keys.view(N, C, 1)).squeeze(-1) # dim (Nx1)
+        l_neg = torch.mm(queries.view(N, C), self.Dqueue.queue.clone().detach().view(C, K).to(device=self.device)) # dim (NxK)
 
-        #backward Pass
+        # Construct inputs for contrastive loss function:
+        logits = torch.cat([l_pos, l_neg], dim=1)
+        contrastive_labels = torch.zeros(logits.shape[0], dtype=torch.long).to(device=self.device)
+
+        # # Calculate contrastive loss:
+        # loss = self.loss_fn(logits/self.tau, contrastive_labels)
+        #
+        # # QE Backwards Pass:
+        # loss.backward()
+        loss = self.loss_fn(logits / self.tau, contrastive_labels)
+
         loss.backward()
-        self.optimizer.step()
 
+        ''' Update encoders' param: '''
+        # QE:
+        self.optimizer.step()
+        # KE:
+        with torch.no_grad():
+            for thetaQ, thetaK in zip(self.QE.parameters(), self.KE.parameters()):
+               thetaK.data.copy_(thetaK.data * self.momentum + thetaQ.data * (1. - self.momentum))
+
+        self.Dqueue.UpdateQueue(keys=keys)
+
+        # Dispose GPU device of residual cache:
         torch.cuda.empty_cache()
 
-        return loss.item() #takes torch tensor and outpots the scalar
+        return loss.item() # Takes torch tensor and outputs a scalar
+
+
+class DictionaryQueue():
+
+    def __init__(self, output_size, queue_size, device):
+
+        self.device = device
+        self.output_size = output_size
+        self.queue_size = queue_size
+        self.queue = nn.functional.normalize(torch.randn(output_size, queue_size), p=2, dim=1)
+        self.queue.to(device=self.device)
+        self.queue_ptr = 0
+
+    def UpdateQueue(self, keys):
+        # Update the Key-dictionary by enqueuing current output keys and dequeuing the oldest ones:
+        # self.Dqueue = torch.cat((self.Dqueue, keys.t()), dim=1)
+        # self.Dqueue = self.Dqueue[:, N:]
+        #
+        # return self.Dqueue
+        batch_size = keys.shape[0]
+
+        ptr = self.queue_ptr
+        assert self.output_size % batch_size == 0  # for simplicity
+
+        self.queue[:, ptr:ptr + batch_size] = torch.transpose(keys, 1, 0)
+        ptr = (ptr + batch_size) % self.queue_size  # move pointer
+
+        self.queue_ptr = ptr
+
 
     def val_batch(self,batch):
 

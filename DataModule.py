@@ -60,6 +60,7 @@ def DataModule(batch_size,ks,imagenet_stats):
     train_dataloader = torch.utils.data.DataLoader(
         dataset_train,
         batch_size=batch_size,
+        num_workers=4,
         drop_last=True,
         shuffle=True,
     )
@@ -67,6 +68,7 @@ def DataModule(batch_size,ks,imagenet_stats):
     validation_dataloader = torch.utils.data.DataLoader(
         dataset_validation,
         batch_size=batch_size,
+        num_workers=4,
         drop_last=True,
         shuffle=True,
     )
