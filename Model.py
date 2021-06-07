@@ -18,15 +18,6 @@ class MoCo(nn.Module):
 
         return y
 
-# class DownStreamTaskModel(nn.Module):
-#     def __init__(self,encoder):
-#         super(DownStreamTaskModel,self).__init__()
-#
-#         self.encoder= encoder
-#         self.fc= nn.Sequential(nn.Linear(),nn.ReLU(),nn.Dropout())
-#
-#     def forward(self,batch):
-#         return self.fc(self.encoder(batch))
 
 class LinearBlock(nn.Module):
     def __init__(self,input_dim,output_dim_list):
@@ -47,3 +38,17 @@ class LinearBlock(nn.Module):
 
     def forward(self, x):
         return self.fc(x)
+
+
+class DownStreamTaskModel(nn.Module):
+    def __init__(self,encoder,InputDim,OutputDim_List):
+        super(DownStreamTaskModel,self).__init__()
+
+        self.encoder= encoder
+        self.fc= LinearBlock(input_dim=InputDim,output_dim_list=OutputDim_List)
+
+    def forward(self,x):
+        features= self.encoder(x)
+        features = nn.functional.normalize(features, p=2, dim=1)
+        features= features.view(-1).copy()
+        return self.fc(features)
