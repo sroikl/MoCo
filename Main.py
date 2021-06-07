@@ -21,14 +21,14 @@ def model_pipeline():
     num_epochs = 200
     output_size = 256
     input_image_size = 224
-
+    output_dim_list= [512,128
+                      ]
     # Data augmentation parameters:
     Gauss_kernel = (int(0.1 * input_image_size) // 2) * 2 + 1  # should be odd
     imagenet_stats = {'mean': [0.485, 0.456, 0.406], 'std': [0.229, 0.224, 0.225]}
 
     # Define model backbone for the base encoders:
 
-    backbone = models.resnet50(num_classes=output_size, pretrained =True)
     # Construct and Initialize dictionary queue:
     Queue = DictionaryQueue(output_size, queue_size, device)
     # Construct dataloaders:
@@ -36,8 +36,8 @@ def model_pipeline():
 
     '''Initializing the Keys Encoder and SG with matching weights'''
     # Construct base encoder models:
-    Qencoder = MoCo(backbone=models.resnet50(num_classes=output_size)).to(device=device)
-    Kencoder = MoCo(backbone=models.resnet50(num_classes=output_size)).to(device=device)
+    Qencoder = MoCo(backbone=models.resnet50(num_classes=output_size),output_dim_list=output_dim_list).to(device=device)
+    Kencoder = MoCo(backbone=models.resnet50(num_classes=output_size),output_dim_list=output_dim_list).to(device=device)
     # Match the weights:
     for param_q, param_k in zip(Qencoder.parameters(), Kencoder.parameters()):
         param_k.data.copy_(param_q.data)

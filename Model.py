@@ -3,18 +3,14 @@ from torch import nn
 
 class MoCo(nn.Module):
 
-    def __init__(self, backbone):
+    def __init__(self, backbone,output_dim_list):
         super(MoCo, self).__init__()
 
         self.fc_length = backbone.fc.in_features # Extract output fc layer depth
         self.encoder= backbone # Define base encoder as the backbone network
-        self.linear = nn.Linear(self.fc_length,self.fc_length) # Define a linear layer in accordance with original output depth
-        self.encoder.fc = nn.Sequential(self.linear,nn.ReLU(),backbone.fc) # Construct a new output block for the base encoder
+        self.linear = LinearBlock(input_dim=self.fc_length,output_dim_list=output_dim_list)
+        self.encoder.fc = nn.Sequential(self.linear) # Construct a new output block for the base encoder
 
-        # ''' Queue Initialization'''
-        # self.queue_ptr= 0
-        # _,self.queue_size= queue.shape
-        # self.queue = nn.functional.normalize(queue, dim=0)
 
     def forward(self, x):
 
@@ -31,3 +27,23 @@ class MoCo(nn.Module):
 #
 #     def forward(self,batch):
 #         return self.fc(self.encoder(batch))
+
+class LinearBlock(nn.Module):
+    def __init__(self,input_dim,output_dim_list):
+        super(LinearBlock,self).__init__()
+
+        mum_layers= len(output_dim_list)
+
+        layers=[]
+        for i,output_dim in enumerate(output_dim_list):
+            if i == mum_layers-1:
+                layers.append(nn.Linear(in_features=input_dim,out_features=output_dim))
+            else:
+                layers.append(nn.Linear(in_features=input_dim, out_features=output_dim), nn.ReLU())
+
+            input_dim=output_dim
+
+        self.fc= nn.Sequential(*layers)
+
+    def forward(self, x):
+        return self.fc(x)
