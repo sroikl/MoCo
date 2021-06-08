@@ -10,7 +10,6 @@ import os
 def TrainMocoContrastive(ConfigFile):
     '''Phase A - train Momentum Encoder'''
 
-
     # Construct and Initialize dictionary queue:
     Queue = DictionaryQueue(ConfigFile['output_size'], ConfigFile['queue_size'],ConfigFile['device'])
 
@@ -66,7 +65,7 @@ def TrainDown_stream_task(ConfigFile):
     # params= Classifier_model.fc.parameters()
 
     # optimizer = torch.optim.SGD(params=params, lr = ConfigFile['lr'], momentum=0.9)
-    optimizer = torch.optim.SGD(params=Classifier_model.parameters(), lr = ConfigFile['lr'], momentum=0.9)
+    optimizer = torch.optim.SGD(params=Classifier_model.parameters(), lr = ConfigFile['lr'], weight_decay= 1e-4, momentum=0.9)
 
     lr_schedualer = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[120, 160], gamma=0.1)
     loss_fn = torch.nn.CrossEntropyLoss()
@@ -78,11 +77,11 @@ def TrainDown_stream_task(ConfigFile):
 if __name__ == '__main__':
 
     # HyperParameters
-    ConfigFile= dict(tau = 0.000001,
+    ConfigFile= dict(tau = 1e-4,
                      update_momentum = 0.9,
                      lr = 1e-4,
                      queue_size = 4096,
-                     batch_size = 256,
+                     batch_size = 32,
                      num_epochs = 200,
                      output_size = 128,
                      input_image_size = 224,
@@ -92,5 +91,5 @@ if __name__ == '__main__':
                      device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
                      )
 
-    # TrainMocoContrastive(ConfigFile)
-    TrainDown_stream_task(ConfigFile)
+    TrainMocoContrastive(ConfigFile)
+    # TrainDown_stream_task(ConfigFile)
