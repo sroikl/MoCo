@@ -30,7 +30,8 @@ class LinearBlock(nn.Module):
             if i == mum_layers-1:
                 layers.append(nn.Linear(in_features=input_dim,out_features=output_dim))
             else:
-                layers.append(nn.Linear(in_features=input_dim, out_features=output_dim), nn.ReLU())
+                layers.append(nn.Linear(in_features=input_dim, out_features=output_dim))
+                layers.append(nn.ReLU())
 
             input_dim=output_dim
 
@@ -50,5 +51,4 @@ class DownStreamTaskModel(nn.Module):
     def forward(self,x):
         features= self.encoder(x)
         features = nn.functional.normalize(features, p=2, dim=1)
-        features= features.view(-1).copy()
         return self.fc(features)
