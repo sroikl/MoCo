@@ -69,8 +69,8 @@ class MoCoTrainer():
             self.scheduler.step()
 
             # Save model weights every 10 epochs:
-            if epoch % 10 == 0:
-                torch.save(self.QE.state_dict(),f'{os.getcwd()}/Model_Weights.pt')
+            if (epoch % 10 == 0) | (epoch == epochs):
+                torch.save(self.QE.state_dict(),f'{os.getcwd()}/MoCoWeights/Model_Weights_epoch_{epoch}.pt')
 
     def train_batch(self, batch):
 

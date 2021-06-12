@@ -59,8 +59,7 @@ class DST_Trainer():
             avg_loss = sum(epoch_train_loss)/num_train_batches
             avg_top1Acc = sum(epoch_train_top1Acc)/num_train_batches
             avg_top5Acc = sum(epoch_train_top5Acc)/num_train_batches
-            pbar.set_description(f'Train Epoch (avg) top 1 Acc: {avg_top1Acc:.3f}, Top 5 Acc: {avg_top5Acc:}')
-            pbar.update()
+            print(f'Train Epoch (avg) top 1 Acc: {avg_top1Acc:.3f}, Top 5 Acc: {avg_top5Acc:}')
 
             # Append current epoch loss:
             train_loss.append(avg_loss)
@@ -83,29 +82,29 @@ class DST_Trainer():
                     epoch_val_top5Acc.append(top5Acc)
 
                     # Update progress bar:
-                    pbar.set_description(f'Va lBatch Loss: {loss:.3f}, Top 1 Acc: {top1Acc:.3f}, Top 5 Acc: {top5Acc:.3f}')
+                    pbar.set_description(f'Val Batch Loss: {loss:.3f}, Top 1 Acc: {top1Acc:.3f}, Top 5 Acc: {top5Acc:.3f}')
                     pbar.update()
 
             avg_loss = sum(epoch_val_loss)/num_val_batches
             avg_top1Acc = sum(epoch_val_top1Acc)/num_val_batches
             avg_top5Acc = sum(epoch_val_top5Acc)/num_val_batches
-            pbar.set_description(f'Val Epoch (avg) top 1 Acc: {avg_top1Acc:.3f}, Top 5 Acc: {avg_top5Acc:.3f}')
-            pbar.update()
+            print(f'Val Epoch (avg) top 1 Acc: {avg_top1Acc:.3f}, Top 5 Acc: {avg_top5Acc:.3f}')
 
             # Append current epoch loss:
             val_loss.append(avg_loss)
             val_top1Acc.append(avg_top1Acc)
             val_top5Acc.append(avg_top5Acc)
 
+
             # Update lr scheduler:
             self.scheduler.step()
 
             # Save model weights every 10 epochs:
-            if epoch % 10 == 0:
-                torch.save(self.model.state_dict(),f'{os.getcwd()}/DST_classifier.pt')
+            if (epoch % 10 == 0) | (epoch == epochs):
+                torch.save(self.model.state_dict(),f'{os.getcwd()}/DST_classifier_epoch_{epoch}.pt')
                 loss_dict= dict(train_loss= {'loss':train_loss,'top1acc':train_top1Acc,'top5acc':train_top5Acc},
                                 val_loss=  {'loss':val_loss,'top1acc':val_top1Acc,'top5acc':val_top5Acc})
-                torch.save(loss_dict,f'{os.getcwd()}/DST_loss_dict.pt')
+                torch.save(loss_dict,f'{os.getcwd()}/DST_loss_dict_epoch_{epoch}.pt')
 
     def train_batch(self, batch):
 

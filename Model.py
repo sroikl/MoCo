@@ -28,9 +28,12 @@ class LinearBlock(nn.Module):
         layers=[]
         for i,output_dim in enumerate(output_dim_list):
             if i == mum_layers-1:
+                # layers.append(nn.Dropout(p=0.1))
                 layers.append(nn.Linear(in_features=input_dim,out_features=output_dim))
             else:
+                # layers.append(nn.Dropout(p=0.1))
                 layers.append(nn.Linear(in_features=input_dim, out_features=output_dim))
+                layers.append(nn.BatchNorm1d(output_dim))
                 layers.append(nn.ReLU())
 
             input_dim=output_dim
@@ -40,15 +43,43 @@ class LinearBlock(nn.Module):
     def forward(self, x):
         return self.fc(x)
 
+class Classifier(nn.Module):
+    def __init__(self,input_dim,output_dim_list):
+        super(Classifier,self).__init__()
+
+        mum_layers= len(output_dim_list)
+
+        layers=[]
+        for i,output_dim in enumerate(output_dim_list):
+            if i == mum_layers-1:
+                # layers.append(nn.Dropout(p=0.1))
+                layers.append(nn.Linear(in_features=input_dim,out_features=output_dim))
+            else:
+                # layers.append(nn.Dropout(p=0.1))
+                layers.append(nn.Linear(in_features=input_dim, out_features=output_dim))
+                # layers.append(nn.BatchNorm1d(output_dim))
+                # layers.append(nn.ReLU())
+
+            input_dim=output_dim
+
+        self.fc= nn.Sequential(*layers)
+
+    def forward(self, x):
+        return self.fc(x)
 
 class DownStreamTaskModel(nn.Module):
     def __init__(self,encoder,InputDim,OutputDim_List):
         super(DownStreamTaskModel,self).__init__()
 
+        self.DO = nn.Dropout(p=0.2)
         self.encoder= encoder
-        self.fc= LinearBlock(input_dim=InputDim,output_dim_list=OutputDim_List)
+        self.fc= Classifier(input_dim=InputDim,output_dim_list=OutputDim_List)
 
     def forward(self,x):
+
         features= self.encoder(x)
-        features = nn.functional.normalize(features, p=2, dim=1)
-        return self.fc(features)
+        # features = nn.functional.normalize(features, p=2, dim=1)
+        features = self.fc(features)
+        # features = self.DO(features)
+
+        return features

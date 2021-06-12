@@ -1,0 +1,98 @@
+ ============= Epoch 1/120 =============
+Train Batch Loss: 2.337, Top 1 Acc: 3.125, Top 5 Acc: 46.875: 100%|██████████| 295/295 [01:24<00:00,  3.49it/s]
+Train Epoch (avg) top 1 Acc: 10.953, Top 5 Acc: 49.735169491525426
+Val Batch Loss: 2.239, Top 1 Acc: 15.625, Top 5 Acc: 56.250: 100%|██████████| 122/122 [00:30<00:00,  3.94it/s]
+Val Epoch (avg) top 1 Acc: 11.245, Top 5 Acc: 51.691
+Training Epoch:   0%|          | 0/295 [00:00<?, ?it/s] ============= Epoch 2/120 =============
+Train Batch Loss: 2.217, Top 1 Acc: 15.625, Top 5 Acc: 65.625: 100%|██████████| 295/295 [01:20<00:00,  3.66it/s]
+Train Epoch (avg) top 1 Acc: 14.078, Top 5 Acc: 57.563559322033896
+Val Batch Loss: 2.235, Top 1 Acc: 25.000, Top 5 Acc: 65.625: 100%|██████████| 122/122 [00:27<00:00,  4.46it/s]
+Training Epoch:   0%|          | 0/295 [00:00<?, ?it/s]Val Epoch (avg) top 1 Acc: 18.622, Top 5 Acc: 63.525
+ ============= Epoch 3/120 =============
+Train Batch Loss: 2.079, Top 1 Acc: 25.000, Top 5 Acc: 75.000: 100%|██████████| 295/295 [01:20<00:00,  3.65it/s]
+Val Epoch:   0%|          | 0/122 [00:00<?, ?it/s]Train Epoch (avg) top 1 Acc: 20.456, Top 5 Acc: 66.48305084745763
+Val Batch Loss: 2.219, Top 1 Acc: 31.250, Top 5 Acc: 62.500: 100%|██████████| 122/122 [00:25<00:00,  4.87it/s]
+Training Epoch:   0%|          | 0/295 [00:00<?, ?it/s]Val Epoch (avg) top 1 Acc: 21.542, Top 5 Acc: 69.339
+ ============= Epoch 4/120 =============
+Train Batch Loss: 1.941, Top 1 Acc: 37.500, Top 5 Acc: 84.375: 100%|██████████| 295/295 [01:21<00:00,  3.64it/s]
+Val Epoch:   0%|          | 0/122 [00:00<?, ?it/s]Train Epoch (avg) top 1 Acc: 23.146, Top 5 Acc: 71.45127118644068
+Val Batch Loss: 2.027, Top 1 Acc: 28.125, Top 5 Acc: 75.000: 100%|██████████| 122/122 [00:25<00:00,  4.75it/s]
+Training Epoch:   0%|          | 0/295 [00:00<?, ?it/s]Val Epoch (avg) top 1 Acc: 25.512, Top 5 Acc: 72.695
+ ============= Epoch 5/120 =============
+Train Batch Loss: 2.126, Top 1 Acc: 28.125, Top 5 Acc: 71.875: 100%|██████████| 295/295 [01:21<00:00,  3.64it/s]
+Val Epoch:   0%|          | 0/122 [00:00<?, ?it/s]Train Epoch (avg) top 1 Acc: 26.695, Top 5 Acc: 74.87288135593221
+Val Batch Loss: 2.138, Top 1 Acc: 25.000, Top 5 Acc: 71.875: 100%|██████████| 122/122 [00:25<00:00,  4.87it/s]
+Training Epoch:   0%|          | 0/295 [00:00<?, ?it/s]Val Epoch (avg) top 1 Acc: 28.023, Top 5 Acc: 76.614
+ ============= Epoch 6/120 =============
+Train Batch Loss: 2.118, Top 1 Acc: 25.000, Top 5 Acc: 71.875: 100%|██████████| 295/295 [01:21<00:00,  3.64it/s]
+Val Epoch:   0%|          | 0/122 [00:00<?, ?it/s]Train Epoch (avg) top 1 Acc: 30.074, Top 5 Acc: 77.98728813559322
+Val Batch Loss: 1.912, Top 1 Acc: 31.250, Top 5 Acc: 78.125: 100%|██████████| 122/122 [00:25<00:00,  4.85it/s]
+Training Epoch:   0%|          | 0/295 [00:00<?, ?it/s]Val Epoch (avg) top 1 Acc: 31.122, Top 5 Acc: 79.278
+ ============= Epoch 7/120 =============
+Train Batch Loss: 1.771, Top 1 Acc: 43.750, Top 5 Acc: 87.500: 100%|██████████| 295/295 [01:21<00:00,  3.63it/s]
+Val Epoch:   0%|          | 0/122 [00:00<?, ?it/s]Train Epoch (avg) top 1 Acc: 32.521, Top 5 Acc: 79.51271186440678
+Val Batch Loss: 2.144, Top 1 Acc: 21.875, Top 5 Acc: 53.125: 100%|██████████| 122/122 [00:25<00:00,  4.87it/s]
+Training Epoch:   0%|          | 0/295 [00:00<?, ?it/s]Val Epoch (avg) top 1 Acc: 33.145, Top 5 Acc: 80.200
+ ============= Epoch 8/120 =============
+Train Batch Loss: 2.062, Top 1 Acc: 37.500, Top 5 Acc: 78.125: 100%|██████████| 295/295 [01:21<00:00,  3.62it/s]
+Val Epoch:   0%|          | 0/122 [00:00<?, ?it/s]Train Epoch (avg) top 1 Acc: 33.718, Top 5 Acc: 80.69915254237289
+Val Batch Loss: 1.657, Top 1 Acc: 46.875, Top 5 Acc: 81.250: 100%|██████████| 122/122 [00:25<00:00,  4.80it/s]
+Training Epoch:   0%|          | 0/295 [00:00<?, ?it/s]Val Epoch (avg) top 1 Acc: 34.554, Top 5 Acc: 81.942
+ ============= Epoch 9/120 =============
+Train Batch Loss: 1.882, Top 1 Acc: 40.625, Top 5 Acc: 78.125: 100%|██████████| 295/295 [01:21<00:00,  3.63it/s]
+Val Epoch:   0%|          | 0/122 [00:00<?, ?it/s]Train Epoch (avg) top 1 Acc: 35.042, Top 5 Acc: 82.29872881355932
+Val Batch Loss: 1.945, Top 1 Acc: 34.375, Top 5 Acc: 84.375: 100%|██████████| 122/122 [00:25<00:00,  4.79it/s]
+Training Epoch:   0%|          | 0/295 [00:00<?, ?it/s]Val Epoch (avg) top 1 Acc: 34.836, Top 5 Acc: 83.325
+ ============= Epoch 10/120 =============
+Train Batch Loss: 1.602, Top 1 Acc: 40.625, Top 5 Acc: 87.500: 100%|██████████| 295/295 [01:21<00:00,  3.61it/s]
+Val Epoch:   0%|          | 0/122 [00:00<?, ?it/s]Train Epoch (avg) top 1 Acc: 37.097, Top 5 Acc: 83.20974576271186
+Val Batch Loss: 1.673, Top 1 Acc: 43.750, Top 5 Acc: 84.375: 100%|██████████| 122/122 [00:25<00:00,  4.85it/s]
+Training Epoch:   0%|          | 0/295 [00:00<?, ?it/s]Val Epoch (avg) top 1 Acc: 36.655, Top 5 Acc: 83.914
+ ============= Epoch 11/120 =============
+Train Batch Loss: 1.934, Top 1 Acc: 25.000, Top 5 Acc: 81.250: 100%|██████████| 295/295 [01:21<00:00,  3.62it/s]
+Val Epoch:   0%|          | 0/122 [00:00<?, ?it/s]Train Epoch (avg) top 1 Acc: 37.797, Top 5 Acc: 83.84533898305085
+Val Batch Loss: 1.585, Top 1 Acc: 37.500, Top 5 Acc: 93.750: 100%|██████████| 122/122 [00:24<00:00,  4.89it/s]
+Val Epoch (avg) top 1 Acc: 38.217, Top 5 Acc: 84.810
+Training Epoch:   0%|          | 0/295 [00:00<?, ?it/s] ============= Epoch 12/120 =============
+Train Batch Loss: 1.631, Top 1 Acc: 37.500, Top 5 Acc: 90.625: 100%|██████████| 295/295 [01:21<00:00,  3.62it/s]
+Val Epoch:   0%|          | 0/122 [00:00<?, ?it/s]Train Epoch (avg) top 1 Acc: 38.475, Top 5 Acc: 84.54449152542372
+Val Batch Loss: 1.479, Top 1 Acc: 50.000, Top 5 Acc: 93.750: 100%|██████████| 122/122 [00:25<00:00,  4.79it/s]
+Training Epoch:   0%|          | 0/295 [00:00<?, ?it/s]Val Epoch (avg) top 1 Acc: 39.703, Top 5 Acc: 84.836
+ ============= Epoch 13/120 =============
+Train Batch Loss: 1.523, Top 1 Acc: 46.875, Top 5 Acc: 93.750: 100%|██████████| 295/295 [01:21<00:00,  3.63it/s]
+Val Epoch:   0%|          | 0/122 [00:00<?, ?it/s]Train Epoch (avg) top 1 Acc: 39.862, Top 5 Acc: 85.44491525423729
+Val Batch Loss: 1.499, Top 1 Acc: 40.625, Top 5 Acc: 93.750: 100%|██████████| 122/122 [00:24<00:00,  4.89it/s]
+Training Epoch:   0%|          | 0/295 [00:00<?, ?it/s]Val Epoch (avg) top 1 Acc: 41.470, Top 5 Acc: 86.270
+ ============= Epoch 14/120 =============
+Train Batch Loss: 1.891, Top 1 Acc: 34.375, Top 5 Acc: 78.125: 100%|██████████| 295/295 [01:21<00:00,  3.62it/s]
+Val Epoch:   0%|          | 0/122 [00:00<?, ?it/s]Train Epoch (avg) top 1 Acc: 41.536, Top 5 Acc: 85.65677966101696
+Val Batch Loss: 1.569, Top 1 Acc: 46.875, Top 5 Acc: 96.875: 100%|██████████| 122/122 [00:24<00:00,  4.89it/s]
+Training Epoch:   0%|          | 0/295 [00:00<?, ?it/s]Val Epoch (avg) top 1 Acc: 40.932, Top 5 Acc: 86.655
+ ============= Epoch 15/120 =============
+Train Batch Loss: 1.733, Top 1 Acc: 34.375, Top 5 Acc: 78.125: 100%|██████████| 295/295 [01:21<00:00,  3.62it/s]
+Train Epoch (avg) top 1 Acc: 42.119, Top 5 Acc: 86.30296610169492
+Val Batch Loss: 1.532, Top 1 Acc: 53.125, Top 5 Acc: 93.750: 100%|██████████| 122/122 [00:25<00:00,  4.86it/s]
+Training Epoch:   0%|          | 0/295 [00:00<?, ?it/s]Val Epoch (avg) top 1 Acc: 44.493, Top 5 Acc: 87.116
+ ============= Epoch 16/120 =============
+Train Batch Loss: 1.438, Top 1 Acc: 56.250, Top 5 Acc: 93.750: 100%|██████████| 295/295 [01:21<00:00,  3.63it/s]
+Val Epoch:   0%|          | 0/122 [00:00<?, ?it/s]Train Epoch (avg) top 1 Acc: 43.019, Top 5 Acc: 87.08686440677967
+Val Batch Loss: 1.892, Top 1 Acc: 37.500, Top 5 Acc: 81.250: 100%|██████████| 122/122 [00:25<00:00,  4.82it/s]
+Val Epoch (avg) top 1 Acc: 42.290, Top 5 Acc: 87.500
+ ============= Epoch 17/120 =============
+Train Batch Loss: 2.053, Top 1 Acc: 37.500, Top 5 Acc: 68.750: 100%|██████████| 295/295 [01:21<00:00,  3.60it/s]
+Val Epoch:   0%|          | 0/122 [00:00<?, ?it/s]Train Epoch (avg) top 1 Acc: 44.449, Top 5 Acc: 87.09745762711864
+Val Batch Loss: 1.483, Top 1 Acc: 50.000, Top 5 Acc: 96.875: 100%|██████████| 122/122 [00:25<00:00,  4.82it/s]
+Val Epoch (avg) top 1 Acc: 45.543, Top 5 Acc: 88.268
+ ============= Epoch 18/120 =============
+Train Batch Loss: 1.596, Top 1 Acc: 53.125, Top 5 Acc: 84.375: 100%|██████████| 295/295 [01:21<00:00,  3.62it/s]
+Train Epoch (avg) top 1 Acc: 44.386, Top 5 Acc: 88.07203389830508
+Val Batch Loss: 1.496, Top 1 Acc: 53.125, Top 5 Acc: 87.500: 100%|██████████| 122/122 [00:25<00:00,  4.80it/s]
+Val Epoch (avg) top 1 Acc: 46.363, Top 5 Acc: 88.064
+ ============= Epoch 19/120 =============
+Train Batch Loss: 1.452, Top 1 Acc: 50.000, Top 5 Acc: 90.625: 100%|██████████| 295/295 [01:21<00:00,  3.63it/s]
+Val Epoch:   0%|          | 0/122 [00:00<?, ?it/s]Train Epoch (avg) top 1 Acc: 46.229, Top 5 Acc: 87.95550847457628
+Val Batch Loss: 1.422, Top 1 Acc: 62.500, Top 5 Acc: 96.875: 100%|██████████| 122/122 [00:25<00:00,  4.86it/s]
+Training Epoch:   0%|          | 0/295 [00:00<?, ?it/s]Val Epoch (avg) top 1 Acc: 46.491, Top 5 Acc: 88.730
+ ============= Epoch 20/120 =============
+Train Batch Loss: 1.453, Top 1 Acc: 53.125, Top 5 Acc: 93.750: 100%|██████████| 295/295 [01:21<00:00,  3.62it/s]
+Val Epoch:   0%|          | 0/122 [00:00<?, ?it/s]Train Epoch (avg) top 1 Acc: 46.674, Top 5 Acc: 88.63347457627118

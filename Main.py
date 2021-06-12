@@ -29,9 +29,8 @@ def TrainMocoContrastive(ConfigFile):
         param_k.data.copy_(param_q.data)
 
     # Define the optimization process:
-    # optimizer = torch.optim.SGD(params=Qencoder.parameters(), lr=lr, weight_decay=1e-4, momentum=0.9)
-    optimizer = torch.optim.Adam(params=Qencoder.parameters(), lr=ConfigFile['lr'])
-    lr_schedualer = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[120, 160], gamma=0.1)
+    optimizer = torch.optim.Adam(params=Qencoder.parameters(), lr=ConfigFile['Moco_lr'])
+    lr_schedualer = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[20, 40, 80, 100], gamma=0.1)
     loss_fn = torch.nn.CrossEntropyLoss()
 
     # Construct a training module:
@@ -54,20 +53,19 @@ def TrainDown_stream_task(ConfigFile):
     Qencoder = MoCo(backbone=models.resnet50(num_classes=ConfigFile['output_size']),
                     output_dim_list=ConfigFile['output_dim_list']).to(device=ConfigFile['device'])
 
-    Qencoder.load_state_dict(torch.load(f'{os.getcwd()}/Model_Weights.pt'))
+    Qencoder.load_state_dict(torch.load(f'{os.getcwd()}/MoCoWeights/Model_Weights_epoch_40.pt'))
 
-    for p in Qencoder.parameters():
-        p.requires_grad = False
+    # for p in Qencoder.parameters():
+    #     p.requires_grad = False
 
 
     Classifier_model= DownStreamTaskModel(encoder=Qencoder, InputDim=128, OutputDim_List=[64, 32, 10]).to(device = ConfigFile['device'])
     # params= [{'params': model.fc.parameters(),'lr':ConfigFile['lr']}]
     # params= Classifier_model.fc.parameters()
 
-    # optimizer = torch.optim.SGD(params=params, lr = ConfigFile['lr'], momentum=0.9)
-    optimizer = torch.optim.SGD(params=Classifier_model.parameters(), lr = ConfigFile['lr'], weight_decay= 1e-4, momentum=0.9)
+    optimizer = torch.optim.Adam(params=Classifier_model.parameters(), lr = ConfigFile['Classifier_lr'])
 
-    lr_schedualer = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[120, 160], gamma=0.1)
+    lr_schedualer = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[40, 80, 120], gamma=0.2)
     loss_fn = torch.nn.CrossEntropyLoss()
 
     trainer= DST_Trainer(model= Classifier_model,loss_fn=loss_fn,optimizer=optimizer,scheduler=lr_schedualer,device=ConfigFile['device'])
@@ -77,12 +75,13 @@ def TrainDown_stream_task(ConfigFile):
 if __name__ == '__main__':
 
     # HyperParameters
-    ConfigFile= dict(tau = 1e-4,
-                     update_momentum = 0.9,
-                     lr = 1e-4,
-                     queue_size = 4096,
+    ConfigFile= dict(tau = 1e-5,
+                     update_momentum = 0.999,
+                     Moco_lr = 1e-5,
+                     Classifier_lr = 1e-3,
+                     queue_size = 9440,
                      batch_size = 32,
-                     num_epochs = 200,
+                     num_epochs = 150,
                      output_size = 128,
                      input_image_size = 224,
                      output_dim_list = [512, 128],
@@ -91,5 +90,5 @@ if __name__ == '__main__':
                      device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
                      )
 
-    TrainMocoContrastive(ConfigFile)
-    # TrainDown_stream_task(ConfigFile)
+    # TrainMocoContrastive(ConfigFile)
+    TrainDown_stream_task(ConfigFile)
